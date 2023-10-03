@@ -6,8 +6,12 @@
 namespace numpy
 {
 	template<typename T>
+	class Numpy;
+
+	template<typename T>
 	class Ndarray final
 	{
+		friend class Numpy<T>;
 	public:
 		Ndarray();
 		Ndarray(const unsigned int& demension, const unsigned int& totalSize, const std::unique_ptr<unsigned int[]>& arraySize, const std::unique_ptr<T[]>& array);
@@ -83,13 +87,22 @@ namespace numpy
 
 	template<typename T>
 	inline Ndarray<T>::Ndarray(const unsigned int& demension, const unsigned int& totalSize, const std::unique_ptr<unsigned int[]>& arraySize, const std::unique_ptr<T[]>& array)
-		: mDemension(demension)
-		, mTotalSize(totalSize)
 	{
+		mDemension = static_cast<unsigned int>(sizeof(arraySize) / sizeof(arraySize[0]));
+		if (mDemension != demension)
+		{
+			mDemension = 0;
+			mTotalSize = 0;
+			mArraySize = nullptr;
+			mArray = nullptr;
+			return;
+		}
 		mArraySize = std::make_unique<unsigned int[]>(mDemension);
+		mTotalSize = 1;
 		for (unsigned int i = 0; i < mDemension; ++i)
 		{
 			mArraySize[i] = arraySize[i];
+			mTotalSize *= arraySize[i];
 			if (mArraySize[i] == 0)
 			{
 				mDemension = 0;
@@ -98,6 +111,14 @@ namespace numpy
 				mArray = nullptr;
 				return;
 			}
+		}
+		if (mTotalSize != totalSize || mTotalSize != sizeof(array) / sizeof(array[0]))
+		{
+			mDemension = 0;
+			mTotalSize = 0;
+			mArraySize = nullptr;
+			mArray = nullptr;
+			return;
 		}
 
 		mArray = std::make_unique<T[]>(mTotalSize);
@@ -336,6 +357,7 @@ namespace numpy
 
 		return Ndarray<T>(mDemension, mTotalSize, std::move(arraySize), std::move(array));
 	}
+
 
 	template<typename T>
 	void Ndarray<T>::Reshape(const unsigned int* arraySize)

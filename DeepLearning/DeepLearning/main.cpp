@@ -16,45 +16,61 @@ void test1()
 	numpy::Ndarray<int> array1(2, 20, arraySize2, array);
 
 	numpy::Ndarray<int> array2 = numpy::Numpy<int>::Zeros(arraySize);
+	assert(array2 == numpy::Numpy<int>::Zeros(arraySize));
 
 	numpy::Ndarray<int> array3 = array2;
 	assert(array2 == array3);
 	assert(!(array2 != array3));
 	std::cout << "N Data Array Make Test Done" << std::endl;
 
-	std::cout << array2 << std::endl;
 	arraySize[0] = 2;
 	arraySize[1] = 10;
 	array2.Reshape(arraySize);
 	std::cout << array2 << std::endl;
+	assert(array2 == numpy::Numpy<int>::Zeros(arraySize));
+	
 	arraySize[0] = 10;
 	arraySize[1] = 2;
 	array2.Reshape(arraySize);
-	std::cout << array2 << std::endl;
+	assert(array2 == numpy::Numpy<int>::Zeros(arraySize));
+
 	arraySize[0] = 5;
 	arraySize[1] = 0;
 	array2.Reshape(arraySize);
-	std::cout << array2 << std::endl;
+	assert(array2 != numpy::Numpy<int>::Zeros(arraySize));
+	
 	arraySize[0] = 5;
 	arraySize[1] = 4;
 	array2.Reshape(arraySize);
+	assert(array2 == numpy::Numpy<int>::Zeros(arraySize));
 	std::cout << array2 << std::endl;
 	std::cout << "N Data Array Reshape Test Done" << std::endl;
 
 	array2 = array2 + 5;
 	std::cout << array2 << std::endl;
-	array2 = array2 * array2;
-	std::cout << array2 << std::endl;
+	array3 = array2 * array2;
+	std::cout << array3 << std::endl;
+	std::cout << "N Data Array scalar +/* Test Done" << std::endl;
+
+	assert(numpy::Numpy<int>::Dot(array2, array3) == numpy::Ndarray<int>::Ndarray());
+
+	arraySize[0] = 4;
+	arraySize[1] = 5;
+	array3.Reshape(arraySize);
+	numpy::Ndarray<int> arrayDot = numpy::Numpy<int>::Dot(array2, array3);
+	std::cout << arrayDot << std::endl;
 }
 
 void test2()
 {
-
+	
 }
 
 int main()
 {
 	test1();
+
+	test2();
 
 	std::cout << "Test Done" << std::endl;
 }
