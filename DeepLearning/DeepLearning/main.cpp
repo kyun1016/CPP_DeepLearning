@@ -35,8 +35,9 @@ void test1()
 	numpy::Ndarray<int> array2 = numpy::Numpy<int>::Zeros(arraySize);
 
 	numpy::Ndarray<int> array3 = array2;
+	assert(array2 == array3);
 	std::cout << "N Data Array Make Test Done" << std::endl;
-	
+
 	std::cout << array2 << std::endl;
 	arraySize[0] = 2;
 	arraySize[1] = 10;
@@ -52,8 +53,8 @@ void test1()
 	std::cout << array2 << std::endl;
 	std::cout << "N Data Array Reshape Test Done" << std::endl;
 
-	
-	
+	array2 = array2 + array2;
+	std::cout << array2 << std::endl;
 }
 
 void test2()

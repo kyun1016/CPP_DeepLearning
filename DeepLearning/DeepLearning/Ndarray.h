@@ -18,12 +18,9 @@ namespace numpy
 		Ndarray<T>& operator=(const Ndarray<T>& rhs);
 		Ndarray<T>& operator=(Ndarray<T>&& rhs);
 
-		bool operator==(const Ndarray<T>& rhs);
-		Ndarray<T> operator+(const Ndarray<T>& rhs);
-		void Reshape(const unsigned int arraySize[]);
-
-
-
+		bool operator==(const Ndarray<T>& rhs) const;
+		Ndarray<T> operator+(const Ndarray<T>& rhs) const;
+		void Reshape(const unsigned int* arraySize);
 
 		friend std::ostream& operator<<(std::ostream& os, const Ndarray<T>& rhs)
 		{
@@ -173,7 +170,7 @@ namespace numpy
 	}
 
 	template<typename T>
-	void Ndarray<T>::Reshape(const unsigned int arraySize[])
+	void Ndarray<T>::Reshape(const unsigned int* arraySize)
 	{
 		unsigned int demension = static_cast<unsigned int>(sizeof(arraySize) / sizeof(arraySize[0]));
 
@@ -192,7 +189,7 @@ namespace numpy
 	}
 
 	template<typename T>
-	inline bool Ndarray<T>::operator==(const Ndarray<T>& rhs)
+	inline bool Ndarray<T>::operator==(const Ndarray<T>& rhs) const
 	{
 		if (mDemension != rhs.mDemension)
 			return false;
@@ -209,7 +206,7 @@ namespace numpy
 	}
 
 	template<typename T>
-	Ndarray<T> Ndarray<T>::operator+(const Ndarray<T>& rhs)
+	Ndarray<T> Ndarray<T>::operator+(const Ndarray<T>& rhs) const
 	{
 		if (this->mDemension != rhs.mDemension)
 			return Ndarray<T>();
@@ -230,7 +227,7 @@ namespace numpy
 		{
 			array[i] = this->mArray[i] + rhs.mArray[i];
 		}
-		Ndarray<T> ret(rhs.mDemension, rhs.mArraySize, std::move(arraySize), std::move(array)); // TODO: change unique_ptr
-		return Ndarray<T>();
+
+		return Ndarray<T>(rhs.mDemension, rhs.mTotalSize, std::move(arraySize), std::move(array));
 	}
 }
