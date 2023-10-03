@@ -88,11 +88,11 @@ namespace numpy
 
 		for (unsigned int i = 0; i < totalSize; ++i)
 		{
-			unsigned int k = static_cast<unsigned int>(i / arraySize[0]);
-			unsigned int y = static_cast<unsigned int>(i / arraySize[1]);
+			unsigned int k = static_cast<unsigned int>(i / arraySize[1]);
+			unsigned int y = static_cast<unsigned int>(i % arraySize[0]);
 			for (unsigned int j = 0; j < b.mArraySize[0]; ++j)
 			{
-				array[i] += a.mArray[j + k * b.mArraySize[0]] * b.mArray[y + j * b.mArraySize[0]];
+				array[i] += a.mArray[j + k * b.mArraySize[0]] * b.mArray[y + j * arraySize[1]];
 			}
 		}
 

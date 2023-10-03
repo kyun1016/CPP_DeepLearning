@@ -9,11 +9,13 @@ void test1()
 	arraySize[0] = 4;
 	arraySize[1] = 5;
 	std::unique_ptr<unsigned int[]> arraySize2 = std::make_unique<unsigned int[]>(2);
-	arraySize2[0] = 4;
-	arraySize2[1] = 5;
-	std::unique_ptr<int[]> array = std::make_unique<int[]>(8);
-
+	arraySize2[0] = 5;
+	arraySize2[1] = 4;
+	std::unique_ptr<int[]> array = std::make_unique<int[]>(arraySize2[0] * arraySize2[1]);
+	for (unsigned int i = 0; i < arraySize2[0] * arraySize2[1]; ++i)
+		array[i] = i;
 	numpy::Ndarray<int> array1(2, 20, arraySize2, array);
+	std::cout << array1 << std::endl;
 
 	numpy::Ndarray<int> array2 = numpy::Numpy<int>::Zeros(arraySize);
 	assert(array2 == numpy::Numpy<int>::Zeros(arraySize));
@@ -56,8 +58,11 @@ void test1()
 
 	arraySize[0] = 4;
 	arraySize[1] = 5;
+	array3 = array1;
 	array3.Reshape(arraySize);
-	numpy::Ndarray<int> arrayDot = numpy::Numpy<int>::Dot(array2, array3);
+	std::cout << array1 << std::endl;
+	std::cout << array3 << std::endl;
+	numpy::Ndarray<int> arrayDot = numpy::Numpy<int>::Dot(array1, array3);
 	std::cout << arrayDot << std::endl;
 }
 
