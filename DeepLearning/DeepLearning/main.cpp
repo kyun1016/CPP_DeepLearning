@@ -1,24 +1,7 @@
-#include "Numpy.h"
 #include<memory>
 #include<iostream>
 
-//class temp
-//{
-//public:
-//	temp(std::unique_ptr<int> a)
-//		: mArray(std::move(a))
-//	{
-//	}
-//private:
-//	std::unique_ptr<int> mArray;
-//};
-//
-//temp test()
-//{
-//	std::unique_ptr<int> a = std::make_unique<int>(5);
-//
-//	return temp(std::move(a));
-//}
+#include "Numpy.h"
 
 void test1()
 {
@@ -30,12 +13,13 @@ void test1()
 	arraySize2[1] = 5;
 	std::unique_ptr<int[]> array = std::make_unique<int[]>(8);
 
-	numpy::Ndarray<int> array1(2, 20, std::move(arraySize2), std::move(array));
+	numpy::Ndarray<int> array1(2, 20, arraySize2, array);
 
 	numpy::Ndarray<int> array2 = numpy::Numpy<int>::Zeros(arraySize);
 
 	numpy::Ndarray<int> array3 = array2;
 	assert(array2 == array3);
+	assert(!(array2 != array3));
 	std::cout << "N Data Array Make Test Done" << std::endl;
 
 	std::cout << array2 << std::endl;
@@ -48,12 +32,18 @@ void test1()
 	array2.Reshape(arraySize);
 	std::cout << array2 << std::endl;
 	arraySize[0] = 5;
+	arraySize[1] = 0;
+	array2.Reshape(arraySize);
+	std::cout << array2 << std::endl;
+	arraySize[0] = 5;
 	arraySize[1] = 4;
 	array2.Reshape(arraySize);
 	std::cout << array2 << std::endl;
 	std::cout << "N Data Array Reshape Test Done" << std::endl;
 
-	array2 = array2 + array2;
+	array2 = array2 + 5;
+	std::cout << array2 << std::endl;
+	array2 = array2 * array2;
 	std::cout << array2 << std::endl;
 }
 

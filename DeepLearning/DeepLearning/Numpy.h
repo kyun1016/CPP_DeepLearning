@@ -43,7 +43,7 @@ namespace numpy
 			array[i] = 0;
 		}
 
-		return Ndarray<T>(demension, totalSize, std::move(arraySize), std::move(array));
+		return Ndarray<T>(demension, totalSize, arraySize, array);
 	}
 
 	template<typename T>

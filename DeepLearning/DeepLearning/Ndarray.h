@@ -10,16 +10,23 @@ namespace numpy
 	{
 	public:
 		Ndarray();
-		Ndarray(const unsigned int& demension, const unsigned int& totalSize, std::unique_ptr<unsigned int[]> arraySize, std::unique_ptr<T[]> array);
+		Ndarray(const unsigned int& demension, const unsigned int& totalSize, const std::unique_ptr<unsigned int[]>& arraySize, const std::unique_ptr<T[]>& array);
 		Ndarray(const unsigned int& demension, const unsigned int& totalSize, const unsigned int* arraySize, const unsigned int* array);
 		Ndarray(const Ndarray<T>& rhs);
 		Ndarray(Ndarray<T>&& rhs);
 		~Ndarray() = default;
+
 		Ndarray<T>& operator=(const Ndarray<T>& rhs);
 		Ndarray<T>& operator=(Ndarray<T>&& rhs);
-
 		bool operator==(const Ndarray<T>& rhs) const;
+		bool operator!=(const Ndarray<T>& rhs) const;
 		Ndarray<T> operator+(const Ndarray<T>& rhs) const;
+		Ndarray<T> operator+(const int& rhs) const;
+		Ndarray<T> operator+(const float& rhs) const;
+		Ndarray<T> operator*(const Ndarray<T>& rhs) const;
+		Ndarray<T> operator*(const int& rhs) const;
+		Ndarray<T> operator*(const float& rhs) const;
+
 		void Reshape(const unsigned int* arraySize);
 
 		friend std::ostream& operator<<(std::ostream& os, const Ndarray<T>& rhs)
@@ -75,12 +82,29 @@ namespace numpy
 	}
 
 	template<typename T>
-	Ndarray<T>::Ndarray(const unsigned int& demension, const unsigned int& totalSize, std::unique_ptr<unsigned int[]> arraySize, std::unique_ptr<T[]> array)
+	inline Ndarray<T>::Ndarray(const unsigned int& demension, const unsigned int& totalSize, const std::unique_ptr<unsigned int[]>& arraySize, const std::unique_ptr<T[]>& array)
 		: mDemension(demension)
 		, mTotalSize(totalSize)
-		, mArraySize(std::move(arraySize))
-		, mArray(std::move(array))
 	{
+		mArraySize = std::make_unique<unsigned int[]>(mDemension);
+		for (unsigned int i = 0; i < mDemension; ++i)
+		{
+			mArraySize[i] = arraySize[i];
+			if (mArraySize[i] == 0)
+			{
+				mDemension = 0;
+				mTotalSize = 0;
+				mArraySize = nullptr;
+				mArray = nullptr;
+				return;
+			}
+		}
+
+		mArray = std::make_unique<T[]>(mTotalSize);
+		for (unsigned int i = 0; i < mTotalSize; ++i)
+		{
+			mArray[i] = array[i];
+		}
 	}
 
 	template<typename T>
@@ -95,7 +119,7 @@ namespace numpy
 		}
 
 		mArray = std::make_unique<T[]>(mTotalSize);
-		for (unsigned int i; i < mTotalSize; ++i)
+		for (unsigned int i = 0; i < mTotalSize; ++i)
 		{
 			mArray[i] = array[i];
 		}
@@ -170,25 +194,6 @@ namespace numpy
 	}
 
 	template<typename T>
-	void Ndarray<T>::Reshape(const unsigned int* arraySize)
-	{
-		unsigned int demension = static_cast<unsigned int>(sizeof(arraySize) / sizeof(arraySize[0]));
-
-		unsigned int totalSize = 1;
-		std::unique_ptr<unsigned int[]> newArraySize = std::make_unique<unsigned int[]>(demension);
-		for (unsigned int i = 0; i < demension; ++i)
-		{
-			newArraySize[i] = arraySize[i];
-			totalSize *= arraySize[i];
-		}
-
-		// assert(totalSize == mTotalSize, "must same total size");
-
-		mDemension = demension;
-		mArraySize = std::move(newArraySize);
-	}
-
-	template<typename T>
 	inline bool Ndarray<T>::operator==(const Ndarray<T>& rhs) const
 	{
 		if (mDemension != rhs.mDemension)
@@ -206,11 +211,17 @@ namespace numpy
 	}
 
 	template<typename T>
+	inline bool Ndarray<T>::operator!=(const Ndarray<T>& rhs) const
+	{
+		return !(*this == rhs);
+	}
+
+	template<typename T>
 	Ndarray<T> Ndarray<T>::operator+(const Ndarray<T>& rhs) const
 	{
-		if (this->mDemension != rhs.mDemension)
+		if (mDemension != rhs.mDemension)
 			return Ndarray<T>();
-		if (this->mTotalSize != rhs.mTotalSize)
+		if (mTotalSize != rhs.mTotalSize)
 			return Ndarray<T>();
 		for (unsigned int i = 0; i < mDemension; ++i)
 			if (mArraySize[i] != rhs.mArraySize[i])
@@ -219,15 +230,130 @@ namespace numpy
 		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(mDemension);
 		for (unsigned int i = 0; i < mDemension; ++i)
 		{
-			arraySize[i] = rhs.mArraySize[i];
+			arraySize[i] = mArraySize[i];
 		}
 
 		std::unique_ptr<T[]> array = std::make_unique<T[]>(mTotalSize);
 		for (unsigned int i = 0; i < mTotalSize; ++i)
 		{
-			array[i] = this->mArray[i] + rhs.mArray[i];
+			array[i] = mArray[i] + rhs.mArray[i];
 		}
 
-		return Ndarray<T>(rhs.mDemension, rhs.mTotalSize, std::move(arraySize), std::move(array));
+		return Ndarray<T>(mDemension, mTotalSize, std::move(arraySize), std::move(array));
+	}
+	template<typename T>
+	inline Ndarray<T> Ndarray<T>::operator+(const int& rhs) const
+	{
+		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(mDemension);
+		for (unsigned int i = 0; i < mDemension; ++i)
+		{
+			arraySize[i] = mArraySize[i];
+		}
+
+		std::unique_ptr<T[]> array = std::make_unique<T[]>(mTotalSize);
+		for (unsigned int i = 0; i < mTotalSize; ++i)
+		{
+			array[i] = mArray[i] + rhs;
+		}
+
+		return Ndarray<T>(mDemension, mTotalSize, std::move(arraySize), std::move(array));
+	}
+	template<typename T>
+	inline Ndarray<T> Ndarray<T>::operator+(const float& rhs) const
+	{
+		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(mDemension);
+		for (unsigned int i = 0; i < mDemension; ++i)
+		{
+			arraySize[i] = mArraySize[i];
+		}
+
+		std::unique_ptr<T[]> array = std::make_unique<T[]>(mTotalSize);
+		for (unsigned int i = 0; i < mTotalSize; ++i)
+		{
+			array[i] = mArray[i] + rhs;
+		}
+
+		return Ndarray<T>(mDemension, mTotalSize, std::move(arraySize), std::move(array));
+	}
+	template<typename T>
+	inline Ndarray<T> Ndarray<T>::operator*(const Ndarray<T>& rhs) const
+	{
+		if (mDemension != rhs.mDemension)
+			return Ndarray<T>();
+		if (mTotalSize != rhs.mTotalSize)
+			return Ndarray<T>();
+		for (unsigned int i = 0; i < mDemension; ++i)
+			if (mArraySize[i] != rhs.mArraySize[i])
+				return Ndarray<T>();
+
+		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(mDemension);
+		for (unsigned int i = 0; i < mDemension; ++i)
+		{
+			arraySize[i] = mArraySize[i];
+		}
+
+		std::unique_ptr<T[]> array = std::make_unique<T[]>(mTotalSize);
+		for (unsigned int i = 0; i < mTotalSize; ++i)
+		{
+			array[i] = mArray[i] * rhs.mArray[i];
+		}
+
+		return Ndarray<T>(mDemension, mTotalSize, std::move(arraySize), std::move(array));
+	}
+
+	template<typename T>
+	inline Ndarray<T> Ndarray<T>::operator*(const int& rhs) const
+	{
+		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(mDemension);
+		for (unsigned int i = 0; i < mDemension; ++i)
+		{
+			arraySize[i] = mArraySize[i];
+		}
+
+		std::unique_ptr<T[]> array = std::make_unique<T[]>(mTotalSize);
+		for (unsigned int i = 0; i < mTotalSize; ++i)
+		{
+			array[i] = mArray[i] * rhs;
+		}
+
+		return Ndarray<T>(mDemension, mTotalSize, std::move(arraySize), std::move(array));
+	}
+
+	template<typename T>
+	inline Ndarray<T> Ndarray<T>::operator*(const float& rhs) const
+	{
+		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(mDemension);
+		for (unsigned int i = 0; i < mDemension; ++i)
+		{
+			arraySize[i] = mArraySize[i];
+		}
+
+		std::unique_ptr<T[]> array = std::make_unique<T[]>(mTotalSize);
+		for (unsigned int i = 0; i < mTotalSize; ++i)
+		{
+			array[i] = mArray[i] * rhs;
+		}
+
+		return Ndarray<T>(mDemension, mTotalSize, std::move(arraySize), std::move(array));
+	}
+
+	template<typename T>
+	void Ndarray<T>::Reshape(const unsigned int* arraySize)
+	{
+		unsigned int demension = static_cast<unsigned int>(sizeof(arraySize) / sizeof(arraySize[0]));
+
+		unsigned int totalSize = 1;
+		std::unique_ptr<unsigned int[]> newArraySize = std::make_unique<unsigned int[]>(demension);
+		for (unsigned int i = 0; i < demension; ++i)
+		{
+			newArraySize[i] = arraySize[i];
+			totalSize *= arraySize[i];
+		}
+
+		if (totalSize != mTotalSize)
+			return;
+
+		mDemension = demension;
+		mArraySize = std::move(newArraySize);
 	}
 }
