@@ -11,7 +11,7 @@ namespace numpy
 		Numpy() = delete;
 		~Numpy() = delete;
 
-		//static Ndarray<T> Array(const unsigned int& demension, const unsigned int* arraySize, const unsigned int* data);
+		//static Ndarray<T> Array(const unsigned int& dimension, const unsigned int* arraySize, const unsigned int* data);
 		static Ndarray<T> Zeros(const unsigned int* data);
 		static Ndarray<T> Ones(const unsigned int* data);
 		static Ndarray<T> Dot(const Ndarray<T>& a, const Ndarray<T>& b);
@@ -20,7 +20,7 @@ namespace numpy
 	};
 
 	//template<typename T>
-	//Ndarray<T> Numpy<T>::Array(const unsigned int& demension, const unsigned int* arraySize, const unsigned int* data)
+	//Ndarray<T> Numpy<T>::Array(const unsigned int& dimension, const unsigned int* arraySize, const unsigned int* data)
 	//{
 	//	return Ndarray<T>(); // TODO: Make function
 	//}
@@ -28,11 +28,11 @@ namespace numpy
 	template<typename T>
 	Ndarray<T> Numpy<T>::Zeros(const unsigned int* data)
 	{
-		unsigned int demension = static_cast<unsigned int>(sizeof(data) / sizeof(data[0]));
+		unsigned int dimension = static_cast<unsigned int>(sizeof(data) / sizeof(data[0]));
 
 		unsigned int totalSize = 1;
-		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(demension);
-		for (unsigned int i = 0; i < demension; ++i)
+		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(dimension);
+		for (unsigned int i = 0; i < dimension; ++i)
 		{
 			arraySize[i] = data[i];
 			totalSize *= data[i];
@@ -44,17 +44,17 @@ namespace numpy
 			array[i] = 0;
 		}
 
-		return Ndarray<T>(demension, totalSize, arraySize, array);
+		return Ndarray<T>(dimension, totalSize, arraySize, array);
 	}
 
 	template<typename T>
 	Ndarray<T> Numpy<T>::Ones(const unsigned int* data)
 	{
-		unsigned int demension = static_cast<unsigned int>(sizeof(data) / sizeof(data[0]));
+		unsigned int dimension = static_cast<unsigned int>(sizeof(data) / sizeof(data[0]));
 
 		unsigned int totalSize = 1;
-		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(demension);
-		for (unsigned int i = 0; i < demension; ++i)
+		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(dimension);
+		for (unsigned int i = 0; i < dimension; ++i)
 		{
 			arraySize[i] = data[i];
 			totalSize *= data[i];
@@ -66,22 +66,22 @@ namespace numpy
 			array[i] = 1;
 		}
 
-		return Ndarray<T>(demension, totalSize, std::move(arraySize), std::move(array));
+		return Ndarray<T>(dimension, totalSize, std::move(arraySize), std::move(array));
 	}
 
 	template<typename T>
 	inline Ndarray<T> Numpy<T>::Dot(const Ndarray<T>& a, const Ndarray<T>& b)
 	{
-		if (a.mDemension > 2 || b.mDemension > 2 || a.mDemension == 0 || b.mDemension == 0)
+		if (a.mDimension == 0 || b.mDimension == 0)
 			return Ndarray<T>();
-		if (a.mDemension == 1 && b.mArraySize[0] != 1)
+		if (a.mDimension == 1 && b.mArraySize[0] != 1)
 			return Ndarray<T>();
 		else if(a.mArraySize[1] != b.mArraySize[0])
 			return Ndarray<T>();
 
 		std::unique_ptr<unsigned int[]> arraySize = std::make_unique<unsigned int[]>(2);
 		arraySize[0] = a.mArraySize[0];
-		arraySize[1] = b.mDemension == 1 ? 1u : b.mArraySize[1];
+		arraySize[1] = b.mDimension == 1 ? 1u : b.mArraySize[1];
 
 		unsigned int totalSize = arraySize[0] * arraySize[1];
 		std::unique_ptr<T[]> array = std::make_unique<T[]>(totalSize);

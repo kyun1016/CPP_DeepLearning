@@ -68,7 +68,8 @@ void test1()
 
 void test2()
 {
-	
+	std::cout << "test 2 start" << std::endl;
+	std::cout << numpy::Ndarray<int>({1,2,3}, 5) << std::endl;
 }
 
 int main()
