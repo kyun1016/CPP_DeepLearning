@@ -15,8 +15,8 @@ namespace numpy
 		friend class Numpy<T>;
 	public:
 		Ndarray();
-		Ndarray(const std::initializer_list<int> arraySize, const T& value);
-		Ndarray(const std::initializer_list<int> arraySize);
+		Ndarray(const std::initializer_list<int>& arraySize, const T& value);
+		Ndarray(const std::initializer_list<int>& arraySize);
 		Ndarray(const unsigned int& dimension, const unsigned int& totalSize, const std::unique_ptr<unsigned int[]>& arraySize, const std::unique_ptr<T[]>& array);
 		Ndarray(const unsigned int& dimension, const unsigned int& totalSize, const unsigned int* arraySize, const unsigned int* array);
 		Ndarray(const Ndarray<T>& rhs);
@@ -87,7 +87,7 @@ namespace numpy
 	}
 
 	template<typename T>
-	inline Ndarray<T>::Ndarray(const std::initializer_list<int> arraySize, const T& value)
+	inline Ndarray<T>::Ndarray(const std::initializer_list<int>& arraySize, const T& value)
 	{
 		int i = 0;
 		mDimension = arraySize.size();
@@ -116,9 +116,31 @@ namespace numpy
 	}
 
 	template<typename T>
-	inline Ndarray<T>::Ndarray(const std::initializer_list<int> arraySize)
+	inline Ndarray<T>::Ndarray(const std::initializer_list<int>& arraySize)
 	{
-		Ndarray(arraySize, 0);
+		int i = 0;
+		mDimension = arraySize.size();
+		mArraySize = std::make_unique<unsigned int[]>(mDimension);
+		mTotalSize = 1;
+		for (auto a : arraySize)
+		{
+			mArraySize[i] = static_cast<unsigned int>(a);
+			mTotalSize *= mArraySize[i];
+			if (mArraySize[i++] == 0)
+			{
+				mDimension = 0;
+				mTotalSize = 0;
+				mArraySize = nullptr;
+				mArray = nullptr;
+				return;
+			}
+		}
+
+		mArray = std::make_unique<T[]>(mTotalSize);
+		for (unsigned int i = 0; i < mTotalSize; ++i)
+		{
+			mArray[i] = 0;
+		}
 	}
 
 	template<typename T>

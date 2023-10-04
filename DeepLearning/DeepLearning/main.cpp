@@ -62,14 +62,24 @@ void test1()
 	array3.Reshape(arraySize);
 	std::cout << array1 << std::endl;
 	std::cout << array3 << std::endl;
-	numpy::Ndarray<int> arrayDot = numpy::Numpy<int>::Dot(array1, array3);
-	std::cout << arrayDot << std::endl;
+	std::cout << numpy::Numpy<int>::Dot(array1, array3) << std::endl;
+	
+	arraySize[0] = 2;
+	arraySize[1] = 10;
+	array1.Reshape(arraySize);
+	arraySize[0] = 10;
+	arraySize[1] = 2;
+	array3.Reshape(arraySize);
+	std::cout << numpy::Numpy<int>::Dot(array1, array3) << std::endl;
 }
 
 void test2()
 {
 	std::cout << "test 2 start" << std::endl;
 	std::cout << numpy::Ndarray<int>({1,2,3}, 5) << std::endl;
+
+	std::cout << numpy::Numpy<int>::Zeros({ 1,2,3 }) << std::endl;
+	std::cout << numpy::Numpy<int>::Ones({ 1,2,3 }) << std::endl;
 }
 
 int main()
